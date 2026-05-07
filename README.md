@@ -8,17 +8,25 @@
 
 ## 핵심 차별점
 
-방탈출은 한 번 클리어한 테마는 다시 갈 수 없습니다. 그룹으로 갈 때마다 "전원이 아직 안 해본 테마"를 매번 손으로 비교해야 하는 번거로움이 큽니다. 빠방·잼핏 등 기존 앱은 개인 기록과 동행 태그까지만 지원할 뿐, **그룹 단위로 멤버들의 클리어 기록을 교차 분석해 미경험 테마만 자동 추천하는 기능은 부재**합니다. 방탈로그는 이 페인포인트를 정조준합니다.
+방탈출은 한 번 클리어한 테마는 다시 갈 수 없습니다. 그룹으로 갈 때마다 "전원이 아직 안 해본 테마"를 매번 손으로 비교해야 하는 번거로움이 큽니다. 빠방·잼핏 등 기존 앱은 개인 기록과 동행 태그까지만 지원할 뿐, **그룹 단위로 멤버들의 클리어 기록을 교차 분석해 미경험 테마만 자동 추천하는 기능은 부재**하며, **AI를 활용한 방탈출 도메인 맞춤 기능 또한 사실상 도입되어 있지 않습니다**. 방탈로그는 이 두 페인포인트를 동시에 정조준합니다.
 
 ## 주요 기능
 
 | # | 기능 | 사용 기술 |
 |---|---|---|
 | 1 | 사용자 인증 및 그룹 생성·초대 | Firebase Auth, Cloud Firestore, 초대 코드/QR |
-| 2 | **그룹 전원 미경험 테마 자동 추천** | Firestore 쿼리(set-difference), Jetpack Compose |
-| 3 | 다층 방탈출 리뷰 시스템 | Room, Firestore, Coil, Firebase Storage |
-| 4 | 매장 위치 지도 + 거리순 정렬 | Google Maps SDK for Compose, FusedLocationProvider |
-| 5 | 개인 클리어 기록 통계·갤러리 | Room, Compose Canvas, Firebase Storage |
+| 2 | **그룹 전원 미경험 테마 자동 추천 + AI 그룹 취향 가중 정렬** | Firestore set-difference, Jetpack Compose, **Gemini API** |
+| 3 | 다층 방탈출 리뷰 시스템 + **AI 자동 분위기 태그 추출** | Room, Firestore, Coil, Firebase Storage, **Gemini API** |
+| 4 | **AI 자연어 검색 + 추천 이유 자연어 생성** | **Gemini API** (Structured JSON Output, Text Generation) |
+| 5 | 매장 위치 지도(거리순) + 개인 클리어 기록 통계·갤러리 | Google Maps SDK for Compose, FusedLocationProvider, Room, Compose Canvas |
+
+## AI 기능 상세 (Google Gemini API)
+
+| AI 기능 | 입력 → 출력 | 동작 방식 |
+|---|---|---|
+| **그룹 취향 프로파일링** | 그룹원들의 리뷰 텍스트 → 취향 벡터 (공포도/문제비중/장르 분포) | 그룹 멤버들이 작성한 리뷰를 모아 LLM에게 그룹의 평균 선호 축을 산출하게 한 뒤, 미경험 테마 추천 결과를 이 벡터와의 유사도로 재정렬 |
+| **자동 분위기 태그 추출** | 자유 작성 리뷰 텍스트 → `[감성, 코미디, 알바있음 …]` 다중 태그 | 도메인 태그 셋을 프롬프트에 고정하고 multi-label 분류로 호출, 일관된 태그 체계 유지 |
+| **자연어 검색 + 추천 이유** | "강남, 4명, 안 무섭고 문제 위주, 1시간 내" → 구조화 필터 JSON + 추천 이유 한 줄 | Gemini Structured Output으로 자연어를 DB 필터로 변환, 결과 카드마다 그룹 취향 기반 추천 이유 자연어 생성 |
 
 ### 다층 리뷰 시스템
 
@@ -35,6 +43,7 @@
 - **클라우드/인증**: Firebase Auth, Firestore, Storage
 - **지도**: Google Maps SDK for Compose
 - **이미지**: Coil
+- **AI**: Google Gemini API (Generative AI Android SDK)
 
 ## 설치 (APK)
 
